@@ -77,6 +77,7 @@ class TI2VidTwoStagesPipeline:
             loras=distilled_lora,
         )
 
+        self.stage_2_model_ledger.device = device1
         self.pipeline_components = PipelineComponents(
             dtype=self.dtype,
             device=device,
@@ -176,7 +177,8 @@ class TI2VidTwoStagesPipeline:
         torch.cuda.synchronize()
         del transformer
         cleanup_memory()
-
+        video_state.latent = video_state.latent.to(device1)
+        audio_state.latent = audio_state.latent.to(device1)
         # Stage 2: Upsample and refine the video at higher resolution with distilled LORA.
         upscaled_video_latent = upsample_video(
             latent=video_state.latent[:1],
