@@ -37,7 +37,9 @@ from ltx_pipelines.utils.constants import STAGE_2_DISTILLED_SIGMA_VALUES, detect
 from ltx_pipelines.utils.media_io import encode_video
 from ltx_pipelines.utils.types import PipelineComponents
 
-device = get_device()
+device0 = torch.device("cuda:0")
+device1 = torch.device("cuda:1")
+device = device0
 
 
 class TI2VidTwoStagesPipeline:
@@ -60,7 +62,7 @@ class TI2VidTwoStagesPipeline:
         quantization: QuantizationPolicy | None = None,
     ):
         self.device = device
-        self.dtype = torch.bfloat16
+        self.dtype = torch.float16
         self.stage_1_model_ledger = ModelLedger(
             dtype=self.dtype,
             device=device,
@@ -101,7 +103,7 @@ class TI2VidTwoStagesPipeline:
         generator = torch.Generator(device=self.device).manual_seed(seed)
         noiser = GaussianNoiser(generator=generator)
         stepper = EulerDiffusionStep()
-        dtype = torch.bfloat16
+        dtype = torch.float16
 
         text_encoder = self.stage_1_model_ledger.text_encoder()
         if enhance_prompt:
